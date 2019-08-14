@@ -6,18 +6,20 @@
 
 // Dependencies. Also required: core-js, fable-loader, fable-compiler, @babel/core,
 // @babel/preset-env, babel-loader, sass, sass-loader, css-loader, style-loader, file-loader
-var path = require('path');
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const TerserPlugin = require('terser-webpack-plugin');
 
 var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
-    indexHtmlTemplate: './src/Client/public/index.html',
-    fsharpEntry: './src/Client/Client.fsproj',
-    outputDir: './src/Client/deploy',
-    assetsDir: './src/Client/public',
+    indexHtmlTemplate: './src/client/public/index.html',
+    fsharpEntry: './src/client/client.fsproj',
+    outputDir: './src/client/deploy',
+    assetsDir: './src/client/public',
     devServerHost: 'localhost',
     devServerPort: 8888,
     // When using webpack-dev-server, you may need to redirect some calls
@@ -79,12 +81,26 @@ module.exports = {
         filename: isProduction ? '[name].[hash].js' : '[name].js'
     },
     mode: isProduction ? 'production' : 'development',
-    devtool: isProduction ? '' : /*'inline-cheap-source-map'*/ /*'eval'*/ 'eval-source-map',
+    devtool: isProduction ? 'hidden-source-map' : /*'inline-cheap-source-map'*/ /*'eval'*/ 'eval-source-map',
     context: resolve('.'),
     optimization: {
         splitChunks: {
             chunks: 'all'
         },
+        minimizer: [
+            new TerserPlugin({
+              cache: true,
+              parallel: true,
+              sourceMap: true, // Must be set to true if using source-maps in production
+              terserOptions: {
+                // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+                toplevel: true,
+                mangle: false,
+                keep_classnames: true,
+                keep_fnames: true,
+              }
+            }),
+        ],
     },
     // Besides the HtmlPlugin, we use the following plugins:
     // PRODUCTION
@@ -96,10 +112,11 @@ module.exports = {
     plugins: isProduction ?
         commonPlugins.concat([
             // new MiniCssExtractPlugin({ filename: 'style.[hash].css' }),
-            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
+            new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }])
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
+            new BundleAnalyzerPlugin(),
         ]),
     resolve: {
         // See https://github.com/fable-compiler/Fable/issues/1490

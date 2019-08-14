@@ -4,6 +4,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="library.fs" />
     <Compile Include="treeshaking.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
