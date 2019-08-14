@@ -1,0 +1,8 @@
+{ 
+    "___docs___": "https://github.com/fsprojects/FSharpLint/blob/master/src/FSharpLint.Core/DefaultConfiguration.json",
+    "ignoreFiles": 
+    [
+        ".fable/*",
+        "Fable.*"
+    ]
+}

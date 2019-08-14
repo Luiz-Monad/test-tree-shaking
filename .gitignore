@@ -1,0 +1,7 @@
+
+.fake/*
+.ionide/*
+node_modules/*
+src/client/bin/*
+src/client/obj/*
+src/client/deploy/*
